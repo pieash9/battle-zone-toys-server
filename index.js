@@ -22,8 +22,8 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // client.connect();
+
+
 
     const toysCollection = client.db("battleZoneToys").collection("allToys");
 
@@ -34,30 +34,32 @@ async function run() {
     // search all data by Toy name
     app.get("/searchByToyName/:text", async (req, res) => {
       const searchText = req.params.text;
-      if (searchText) {
+      if(searchText){
         const result = await toysCollection
-          .find({
-            $or: [
-              {
-                name: { $regex: searchText, $options: "i" },
-              },
-            ],
-          })
-          .limit(20)
-          .toArray();
-        res.send(result);
-      } else {
-        res
-          .status(404)
-          .send({ error: true, message: "Please do a valid query" });
+        .find({
+          $or: [
+            {
+              name: { $regex: searchText, $options: "i" },
+            },
+          ],
+        })
+        .limit(20)
+        .toArray();
+      res.send(result);
+      }else{
+        res.status(404).send({error:true,message:"Please do a valid query"})
       }
+      
     });
 
     // get all data
     app.get("/allToys", async (req, res) => {
       //using limit
       // sorting
-      const result = await toysCollection.find().limit(20).toArray();
+      const result = await toysCollection
+        .find()
+        .limit(20)
+        .toArray();
       res.send(result);
     });
 
@@ -72,7 +74,7 @@ async function run() {
     //get data by email/user (My data)
     app.get("/myToys/:email", async (req, res) => {
       const email = req.params.email;
-      const sortedBy = req.query.sort;
+      const sortedBy = req.query.sort
       const result = await toysCollection
         .find({ sellerEmail: email })
         .sort({ createdAt: sortedBy })
